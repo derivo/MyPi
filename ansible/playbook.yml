@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+
+    - name: create directory if they don't exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pi
+        group: pi
+        mode: 0775
+      loop:
+        - /srv/container
+        - /srv/container/gitlab
+        - /srv/container/gitlab/app
+        - /srv/container/gitlab/app/config
+        - /srv/container/gitlab/app/data
+        - /srv/container/gitlab/app/logs
+        - /srv/container/gitlab/runner
+        - /srv/container/gitlab/runner/config
+        - /srv/container/minecraft
+        - /srv/container/minecraft/data
