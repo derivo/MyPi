@@ -1,18 +1,11 @@
 ---
+- import_playbook: basics.yml
 - hosts: all
   become: yes
   become_user: root
   vars:
     ansible_python_interpreter: /usr/bin/python3
   tasks:
-    - name: Run the equivalent of "apt-get update" as a separate step
-      apt:
-        update_cache: true
-        cache_valid_time: 3600
-    - name: Update all packages to the latest version
-      apt:
-        upgrade: dist
-
     - name: create directory if they don't exist
       file:
         path: "{{ item }}"
@@ -21,7 +14,6 @@
         group: pi
         mode: 0775
       loop:
-        - /srv/container
         - /srv/container/gitlab
         - /srv/container/gitlab/app
         - /srv/container/gitlab/app/config
@@ -29,5 +21,16 @@
         - /srv/container/gitlab/app/logs
         - /srv/container/gitlab/runner
         - /srv/container/gitlab/runner/config
-        - /srv/container/minecraft
-        - /srv/container/minecraft/data
+
+    - name: copy docker-compose for gitlab
+      copy:
+        src: "../gitlab/docker-compose.yml"
+        dest: /srv/container/gitlab/docker-compose.yml
+        owner: pi
+        group: pi
+      register: gitlab_compose_file
+
+    - name: "run docker-compose after changed"
+      shell: cd /srv/container/gitlab/ && docker-compose up -d
+      become: yes
+      when: gitlab_compose_file.changed

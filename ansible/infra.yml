@@ -1,0 +1,27 @@
+---
+- import_playbook: basics.yml
+- hosts: all
+  tasks:
+    - name: create directory if they don't exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pi
+        group: pi
+        mode: 0775
+      loop:
+        - /srv/container/infra
+        - /srv/container/infra/registry/
+        - /srv/container/infra/registry/data
+
+    - name: copy docker-compose for gitlab
+      copy:
+        src: "../minecraft/docker-compose.yml"
+        dest: /srv/container/minecraft/docker-compose.yml
+        owner: pi
+        group: pi
+      register: gitlab_compose_file
+
+    - name: "run docker-compose after change"
+      shell: cd /srv/container/infra/ && docker-compose up -d
+      when: gitlab_compose_file.changed

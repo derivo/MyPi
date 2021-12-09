@@ -1,0 +1,53 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+
+    - name: install basic tools
+      apt:
+        name:
+          - locales
+          - cifs-utils
+          - docker-compose
+        state: present
+      become: yes
+
+    - name: create base directory
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pi
+        group: pi
+        mode: 0775
+      loop:
+        - /srv/container
+
+    - name: Set timezone to Europe/Amsterdam (CEST)
+      become: yes
+      # src is real file, dest is the symbolic link
+      copy:
+        src: /usr/share/zoneinfo/Europe/Amsterdam
+        dest: /etc/localtime
+        owner: root
+        group: root
+        force: yes
+
+    - name: add bash_aliases
+      become: yes
+      # src is real file, dest is the symbolic link
+      copy:
+        src: bash_aliases
+        dest: "~/.bash_aliases"
+        owner: root
+        group: root
+        force: yes
