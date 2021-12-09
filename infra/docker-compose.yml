@@ -1,0 +1,13 @@
+---
+version: '3'
+services:
+  registry:
+    image: 'registry:2'
+    hostname: 'registry.fritz.box'
+    restart: unless-stopped
+    environment:
+      - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/data
+    ports:
+      - '5000:5000'
+    volumes:
+      - './registry/data:/data'

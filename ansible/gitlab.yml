@@ -28,9 +28,9 @@
         dest: /srv/container/gitlab/docker-compose.yml
         owner: pi
         group: pi
-      register: gitlab_compose_file
+      register: compose_file
 
     - name: "run docker-compose after changed"
       shell: cd /srv/container/gitlab/ && docker-compose up -d
       become: yes
-      when: gitlab_compose_file.changed
+      when: compose_file.changed

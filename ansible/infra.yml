@@ -1,6 +1,10 @@
 ---
 - import_playbook: basics.yml
 - hosts: all
+  become: yes
+  become_user: root
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: create directory if they don't exist
       file:
@@ -14,14 +18,14 @@
         - /srv/container/infra/registry/
         - /srv/container/infra/registry/data
 
-    - name: copy docker-compose for gitlab
+    - name: copy docker-compose for infra parts
       copy:
-        src: "../minecraft/docker-compose.yml"
-        dest: /srv/container/minecraft/docker-compose.yml
+        src: "../infra/docker-compose.yml"
+        dest: /srv/container/infra/docker-compose.yml
         owner: pi
         group: pi
-      register: gitlab_compose_file
+      register: compose_file
 
     - name: "run docker-compose after change"
       shell: cd /srv/container/infra/ && docker-compose up -d
-      when: gitlab_compose_file.changed
+      when: compose_file.changed

@@ -1,0 +1,20 @@
+---
+version: '3'
+services:
+  minecraft:
+    image: 'itzg/minecraft-server'
+    hostname: 'minecraft.fritz.box'
+    restart: unless-stopped
+    environment:
+      - TYPE=SPIGOT
+      - EULA=TRUE
+      - MEMORY=2G
+      - SNOOPER_ENABLED=FALSE
+      - PVP=FALSE
+      - ONLINE_MODE=FALSE
+      - ENABLE_ROLLING_LOGS=true
+      - TZ=Europe/London
+    ports:
+      - '25565:25565'
+    volumes:
+      - './data:/data'
